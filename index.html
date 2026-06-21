@@ -1,10 +1,10 @@
-
+```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Viewer</title>
+<title>عرض السجل الأكاديمي</title>
 
 <style>
 :root {
@@ -22,7 +22,7 @@
 
 body {
     margin: 0;
-    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-family: Tahoma, Arial, sans-serif;
     background: var(--bg);
     color: var(--ink);
     min-height: 100vh;
@@ -49,14 +49,9 @@ body {
 }
 
 h1 {
-    font-size: 18px;
-    margin: 0 0 4px;
-}
-
-.hint {
+    font-size: 22px;
     margin: 0 0 20px;
-    color: var(--muted);
-    font-size: 14px;
+    text-align: center;
 }
 
 .row {
@@ -92,64 +87,74 @@ button:hover {
 }
 
 .error {
-    color: var(--accent);
+    color: #c0392b;
     font-size: 14px;
     margin-top: 10px;
     display: none;
+    text-align: center;
 }
 
 .viewer-wrap {
     width: 100%;
-    max-width: 720px;
+    max-width: 900px;
     margin-top: 20px;
     display: none;
 }
 
-.viewer-wrap iframe {
-    width: 100%;
-    height: 70vh;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: #fff;
+.viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .filename-label {
-    font-size: 14px;
     color: var(--muted);
-    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.viewer-wrap iframe {
+    width: 100%;
+    height: 75vh;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
 }
 </style>
 </head>
 
 <body>
 
-<img class="logo" src="logo.jpg" >
+<img class="logo" src="logo.jpg" alt="Logo">
 
 <div class="panel">
     <h1>رقم الهوية لعرض السجل الأكاديمي</h1>
-
-    <p class="hint">
-       
-    </p>
 
     <div class="row">
         <input
             type="text"
             id="pdfName"
-            placeholder="report"
+            placeholder="أدخل رقم الهوية"
             autocomplete="off"
-        />
-        <button onclick="loadPdf()">Load</button>
+        >
+
+        <button onclick="loadPdf()">عرض</button>
     </div>
 
     <div class="error" id="errorMsg">
-        File not found. Check the filename and try again.
+        لم يتم العثور على السجل الأكاديمي.
     </div>
 </div>
 
 <div class="viewer-wrap" id="viewerWrap">
-    <div class="filename-label" id="filenameLabel"></div>
+
+    <div class="viewer-header">
+        <button onclick="printPdf()">طباعة</button>
+        <div class="filename-label" id="filenameLabel"></div>
+    </div>
+
     <iframe id="pdfFrame"></iframe>
+
 </div>
 
 <script>
@@ -162,20 +167,17 @@ function loadPdf() {
     const pdfFrame = document.getElementById("pdfFrame");
     const filenameLabel = document.getElementById("filenameLabel");
 
-    const name = input.value.trim();
+    const id = input.value.trim();
 
-    if (!name) {
-        viewerWrap.style.display = "none";
-        return;
-    }
+    if (!id) return;
 
-    const filename = name + ".pdf";
+    const filename = id + ".pdf";
     const path = FOLDER + filename;
 
     fetch(path, { method: "HEAD" })
-        .then((res) => {
-            if (!res.ok) {
-                throw new Error("File not found");
+        .then(response => {
+            if (!response.ok) {
+                throw new Error();
             }
 
             errorMsg.style.display = "none";
@@ -184,20 +186,36 @@ function loadPdf() {
             viewerWrap.style.display = "block";
         })
         .catch(() => {
-            errorMsg.style.display = "block";
             viewerWrap.style.display = "none";
+            errorMsg.style.display = "block";
         });
 }
 
-document
-    .getElementById("pdfName")
-    .addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-            loadPdf();
-        }
-    });
+function printPdf() {
+    const pdfFrame = document.getElementById("pdfFrame");
+
+    if (!pdfFrame.src) {
+        alert("قم بعرض السجل أولاً");
+        return;
+    }
+
+    const printWindow = window.open(pdfFrame.src, "_blank");
+
+    if (printWindow) {
+        printWindow.onload = function () {
+            printWindow.focus();
+            printWindow.print();
+        };
+    }
+}
+
+document.getElementById("pdfName").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        loadPdf();
+    }
+});
 </script>
 
 </body>
 </html>
-
+```
